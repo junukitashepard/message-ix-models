@@ -1,7 +1,7 @@
 import logging
 from copy import deepcopy
 from hashlib import blake2s
-from typing import TYPE_CHECKING, Literal, Optional
+from typing import TYPE_CHECKING, Literal
 
 from genno import KeyExistsError
 
@@ -100,7 +100,7 @@ def maybe_use_temporary_platform(context: "Context") -> None:
     log.info("No --platform/--url; using temporary, in-memory database")
 
 
-def scenario_url(context: "Context", label: Optional[str] = None) -> str:
+def scenario_url(context: "Context", label: str | None = None) -> str:
     """Construct a target URL for a built MESSAGEix-Transport scenario.
 
     If the :attr:`.dest` URL is set on `context` (for instance, provided via the
@@ -214,8 +214,11 @@ def generate(
         # Make a copy of the base .transport.Config for this particular workflow branch
         config = deepcopy(context.transport)
 
-        # Update the .transport.Config from the `scenario_code` and `policy`
-        label, label_full = config.use_scenario_code(scenario_code)
+        # Update the .transport.Config from the `scenario_code`
+        config.code = scenario_code
+
+        # Short and long labels for workflow step names and scenario names
+        label, label_full = config.code.id, config.label
 
         # Identify the base scenario
         base_url = base_scenario_url(context, config, base_scenario_method)

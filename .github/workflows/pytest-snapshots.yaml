@@ -14,8 +14,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  gams-version: 43.4.1
-  python-version: "3.13"
+  gams-version: 48.7.0
+  python-version: "3.14"
   upstream: main
 
 jobs:
@@ -31,12 +31,12 @@ jobs:
         key: ubuntu-latest
 
     - name: Check out message-ix-models
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         lfs: true
 
     - name: Set up uv, Python
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
       with:
         activate-environment: true
         python-version: ${{ env.python-version }}

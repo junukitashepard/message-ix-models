@@ -1,5 +1,3 @@
-from typing import Optional
-
 import pandas as pd
 import pytest
 from message_ix import Scenario
@@ -123,6 +121,30 @@ def test_cool_tec(request, test_context, RCP):
     # Assert the results
     assert isinstance(result, dict)
     assert "input" in result
+
+    # Check for NaN values in input DataFrame
+    assert not result["input"]["value"].isna().any(), (
+        "Input DataFrame contains NaN values"
+    )
+    # Check that time values are not individual characters (common bug)
+    input_time_values = result["input"]["time"].unique()
+    assert not any(len(str(val)) == 1 for val in input_time_values), (
+        f"Input DataFrame contains time values: {input_time_values}. "
+    )
+
+    output_time_values = result["output"]["time"].unique()
+    assert not any(len(str(val)) == 1 for val in output_time_values), (
+        f"Output DataFrame contains time values: {output_time_values}. "
+    )
+    input_duplicates = result["input"].duplicated().sum()
+    assert input_duplicates == 0, (
+        f"Input DataFrame contains {input_duplicates} duplicate rows"
+    )
+    output_duplicates = result["output"].duplicated().sum()
+    assert output_duplicates == 0, (
+        f"Input DataFrame contains {output_duplicates} duplicate rows"
+    )
+
     assert all(
         col in result["input"].columns
         for col in [
@@ -236,7 +258,7 @@ def test_non_cooling_tec(request, test_context):
 )
 def test_apply_act_cap_multiplier(
     param_name: str,
-    cap_fact_parent: Optional[pd.DataFrame],
+    cap_fact_parent: pd.DataFrame | None,
     expected_values: list[float],
 ) -> None:
     # Dummy input data

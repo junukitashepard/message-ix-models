@@ -1,7 +1,6 @@
 import logging
 from collections.abc import Mapping
 from functools import lru_cache, partial
-from typing import Optional
 
 import pandas as pd
 from sdmx.model.v21 import Code
@@ -108,7 +107,7 @@ def share_map_cool(
     share_keys: list[str],
     type_tec_keys: list[str],
     regions_df: list[str],
-    commodity_mapping: Optional[dict[str, str]] = None,
+    commodity_mapping: dict[str, str] | None = None,
 ) -> pd.DataFrame:
     """
     Helper function to create the share mapping DataFrame for both 'tot' and 'share'
@@ -477,27 +476,28 @@ def get_spec(context: Context) -> Mapping[str, ScenarioInfo]:
     df_tot = df_tot[
         ["shares", "node_share", "node", "type_tec", "mode", "commodity", "level"]
     ]
-
+    # FIXME : Temporarily commenting out share calibration
+    # Causes 4X size explosion in the model, likely problematic.
     # calibration cooling contraints on single parent techs
-    (
-        cat_tec_calib_cool,
-        map_com_tot_calib_cool,
-        map_com_share_calib_cool,
-    ) = cat_tec_cooling_calib(context)
+    # (
+    #     cat_tec_calib_cool,
+    #     map_com_tot_calib_cool,
+    #     map_com_share_calib_cool,
+    # ) = cat_tec_cooling_calib(context)
 
-    cat_tec_list = pd.concat([cat_tec, cat_tec_calib_cool]).values.tolist()
+    # cat_tec_list = pd.concat([cat_tec, cat_tec_calib_cool]).values.tolist()
 
-    results["cat_tec"] = cat_tec_list
+    # results["cat_tec"] = cat_tec_list
 
-    map_share_commodity_tot_list = pd.concat(
-        [df_tot, map_com_tot_calib_cool]
-    ).values.tolist()
-    results["map_shares_commodity_total"] = map_share_commodity_tot_list
+    # map_share_commodity_tot_list = pd.concat(
+    #     [df_tot, map_com_tot_calib_cool]
+    # ).values.tolist()
+    # results["map_shares_commodity_total"] = map_share_commodity_tot_list
 
-    map_share_commodity_share_list = pd.concat(
-        [df_share, map_com_share_calib_cool]
-    ).values.tolist()
-    results["map_shares_commodity_share"] = map_share_commodity_share_list
+    # map_share_commodity_share_list = pd.concat(
+    #     [df_share, map_com_share_calib_cool]
+    # ).values.tolist()
+    # results["map_shares_commodity_share"] = map_share_commodity_share_list
 
     for set_name, config in results.items():
         # Sets to add

@@ -5,7 +5,7 @@
 
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import sphinx.application
@@ -186,7 +186,7 @@ extlinks = {
 # -- Options for sphinx.ext.intersphinx ------------------------------------------------
 
 
-def local_inv(name: str, *parts: str) -> Optional[str]:
+def local_inv(name: str, *parts: str) -> str | None:
     """Construct the path to a local intersphinx inventory."""
     if 0 == len(parts):
         parts = ("doc", "_build", "html")
@@ -211,7 +211,7 @@ intersphinx_mapping = {
     "m-data": (
         f"https://{_token}:@docs.messageix.org/projects/models-internal/en/latest/",
         # Use a local copy of objects.inv, if the user has one
-        (local_inv("message_data"), None),
+        local_inv("message_data"),
     ),
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
     "pint": ("https://pint.readthedocs.io/en/stable/", None),

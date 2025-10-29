@@ -4,7 +4,7 @@ import logging
 from collections import defaultdict
 from collections.abc import MutableMapping
 from functools import lru_cache
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, cast
 
 import pandas as pd
 
@@ -20,7 +20,7 @@ def assign_income_groups(  # noqa: C901
     cl_node: "sdmx.model.common.Codelist",
     cl_income_group: "sdmx.model.common.Codelist",
     method: str = "population",
-    replace: Optional[dict[str, str]] = None,
+    replace: dict[str, str] | None = None,
 ) -> None:
     """Annotate `cl_node` with income groups.
 
@@ -101,7 +101,7 @@ def assign_income_groups(  # noqa: C901
             continue  # Country → skip
 
         # Total weight of different income groups among `node`'s countries
-        weight: MutableMapping[Optional[str], float] = defaultdict(lambda: 0.0)
+        weight: MutableMapping[str | None, float] = defaultdict(lambda: 0.0)
 
         # Iterate over countries
         for country in node.child:
@@ -163,7 +163,7 @@ def fetch_codelist(id: str) -> "sdmx.model.common.Codelist":
         url="https://api.worldbank.org/v2/sdmx/rest/codelist/WB/", known_hash=None
     )
     # Read the retrieved SDMX StructureMessage and extract the code list
-    sm = cast("StructureMessage", sdmx.read_sdmx(file))
+    sm = cast("StructureMessage", sdmx.read_sdmx(file, format="xml"))
 
     return sm.codelist[id]
 

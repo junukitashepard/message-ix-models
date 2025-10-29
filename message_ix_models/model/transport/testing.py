@@ -5,14 +5,16 @@ import platform
 from collections import ChainMap
 from collections.abc import Callable, Hashable, Mapping
 from contextlib import nullcontext
+from functools import cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Any
 
 import pytest
 from message_ix import Reporter, Scenario
 
 import message_ix_models.report
 from message_ix_models import ScenarioInfo, testing
+from message_ix_models.model.transport.config import get_cl_scenario
 from message_ix_models.report.sim import add_simulated_solution
 from message_ix_models.testing import GHA, SOLVE_OPTIONS, bare_res
 from message_ix_models.util import silence_log
@@ -24,6 +26,7 @@ if TYPE_CHECKING:
     import pandas
     import pint
     from genno import Computer
+    from sdmx.model.common import Code
 
     from message_ix_models import Context
 
@@ -72,7 +75,7 @@ make_mark: dict[Hashable, Callable[..., pytest.MarkDecorator]] = {
 
 
 def assert_units(
-    df: "pandas.DataFrame", expected: Union[str, dict, "pint.Unit", "pint.Quantity"]
+    df: "pandas.DataFrame", expected: "str | dict | pint.Unit | pint.Quantity"
 ):
     """Assert that `df` has the unique, `expected` units."""
     import pint
@@ -98,13 +101,18 @@ def configure_build(
     *,
     regions: str,
     years: str,
-    tmp_path: Optional[Path] = None,
+    tmp_path: Path | None = None,
     options=None,
 ) -> tuple["Computer", ScenarioInfo]:
     test_context.update(regions=regions, years=years, output_path=tmp_path)
 
-    # By default, omit plots while testing
+    # Set defaults for some options
     options = options or {}
+
+    # Use scenario code "SSP2"
+    options.setdefault("code", _default_scenario_code())
+
+    # Omit plots for shorter test run times
     options.setdefault("extra_modules", [])
     options["extra_modules"].append("-plot")
 
@@ -116,7 +124,7 @@ def configure_build(
 def built_transport(
     request: "pytest.FixtureRequest",
     context: "Context",
-    options: Optional[dict] = None,
+    options: dict | None = None,
     solved: bool = False,
     quiet: bool = True,
 ) -> Scenario:
@@ -176,8 +184,14 @@ def built_transport(
     return result
 
 
+@cache
+def _default_scenario_code() -> "Code":
+    """Return a default scenario code for :meth:`.configure_build`."""
+    return get_cl_scenario()["SSP2"]
+
+
 def simulated_solution(
-    request: "pytest.FixtureRequest", context: "Context", build: bool
+    request: "pytest.FixtureRequest", context: "Context", build: bool, **options
 ) -> Reporter:
     """Return a :class:`.Reporter` with a simulated model solution.
 
@@ -200,7 +214,7 @@ def simulated_solution(
     if build:
         # Use some default options to force built_transport → build.main() →
         # build.get_computer() to generate config
-        options = dict(dummy_LDV=False)
+        options.setdefault("dummy_LDV", False)
 
         # Build the base model
         scenario = built_transport(request, context, options=options, solved=False)
@@ -220,7 +234,7 @@ def simulated_solution(
         rep = reporter_from_excel(path)
 
         # Ensure a Config object
-        config = Config.from_context(context)
+        config = Config.from_context(context, options)
 
         # Retrieve the ScenarioInfo generated in reporter_from_excel()
         info = rep.graph["scenario info"]

@@ -5,7 +5,7 @@ from functools import partial
 from importlib import import_module
 from operator import itemgetter
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 import genno
 import pandas as pd
@@ -264,6 +264,10 @@ def add_exogenous_data(c: Computer, info: ScenarioInfo) -> None:
     for _, f in filter(lambda x: x[1].intent & Dataflow.FLAG.IN, data.iter_files()):
         c.add("", f, context=context)
 
+    data.LoadFactorLDV.add_tasks(
+        c, context=context, strict=False, nodes=context.model.regions, config=config
+    )
+
 
 #: :mod:`genno` tasks for model structure information that are 'static'—that is, do not
 #: change based on :class:`~.transport.config.Config` settings. See
@@ -482,16 +486,14 @@ def add_structure(c: Computer) -> None:
     )
 
 
-@minimum_version(
-    "genno 1.28", "message_ix_models.model.transport.operator.uniform_in_dim"
-)
+@minimum_version("genno 1.28")
 def get_computer(
     context: Context,
-    obj: Optional[Computer] = None,
+    obj: Computer | None = None,
     *,
     visualize: bool = True,
-    scenario: Optional[Scenario] = None,
-    options: Optional[dict] = None,
+    scenario: Scenario | None = None,
+    options: dict | None = None,
 ) -> Computer:
     """Return a :class:`genno.Computer` set up for model-building computations.
 
@@ -533,12 +535,12 @@ def get_computer(
             raise ValueError(
                 "Both config=.transport.Config(...) and additional options={...}"
             )
-    elif options:
-        # Create a new instance using `kwargs`
-        config = Config.from_context(context, options=options)
-    else:
+    elif "transport" in context:
         # Retrieve the current .transport.Config. AttributeError if no instance exists.
         config = context.transport
+    else:
+        # Create a new instance using `kwargs`
+        config = Config.from_context(context, options=options)
 
     # Structure information for the base model
     if scenario:
@@ -611,7 +613,7 @@ def get_computer(
 def main(
     context: Context,
     scenario: Scenario,
-    options: Optional[dict] = None,
+    options: dict | None = None,
     **option_kwargs,
 ):
     """Build MESSAGEix-Transport on `scenario`.

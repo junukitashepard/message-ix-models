@@ -13,7 +13,7 @@ import ixmp
 from message_ix.report import Reporter
 from message_ix_models.util import broadcast, package_data_path
 
-from message_ix_models.project.gas_security.reporting.config import Config
+from message_ix_models.project.weu_security.reporting.config import Config
 
 def load_config(name: str) -> "Config":
     """Load a config for a given reporting variable category from the YAML files.
@@ -120,15 +120,15 @@ def fuel_supply_reporting(rep: Reporter, scenario: message_ix.Scenario, config_n
 mp = ixmp.Platform()
 
 fuel_supply_out = pd.DataFrame()
-for mod, scen in [('gas_security', 'SSP2'),
-                  ('gas_security', 'FSU2040'),
-                  ('gas_security', 'FSU2100'),
-                  ('gas_security', 'NAM500'),
-                  ('gas_security', 'NAM1000'),
-                  ('gas_security', 'FSU2040_NAM500'),
-                  ('gas_security', 'FSU2040_NAM1000'),
-                  ('gas_security', 'FSU2100_NAM500'),
-                  ('gas_security', 'FSU2100_NAM1000'),
+for mod, scen in [('weu_security', 'SSP2'),
+                  ('weu_security', 'FSU2040'),
+                  ('weu_security', 'FSU2100'),
+                  ('weu_security', 'NAM500'),
+                  ('weu_security', 'NAM1000'),
+                  ('weu_security', 'FSU2040_NAM500'),
+                  ('weu_security', 'FSU2040_NAM1000'),
+                  ('weu_security', 'FSU2100_NAM500'),
+                  ('weu_security', 'FSU2100_NAM1000'),
                   ]:
     print(f"COMPILING {mod}/{scen}")
     print(f"--------------------------------")
@@ -160,6 +160,6 @@ for mod, scen in [('gas_security', 'SSP2'),
     fuel_exports = fuel_exports[['region', 'fuel_type', 'model', 'scenario', 'supply_type', 'unit', 'value', 'variable', 'exporter', 'year']].drop_duplicates()
     fuel_supply_out = pd.concat([fuel_supply_out, fuel_exports])
 
-fuel_supply_out.to_csv(package_data_path('gas_security', 'reporting', 'fuel_supply_out.csv'))
+fuel_supply_out.to_csv(package_data_path('weu_security', 'reporting', 'fuel_supply_out.csv'))
 
 mp.close_db()

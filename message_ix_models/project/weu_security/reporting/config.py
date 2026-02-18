@@ -57,7 +57,7 @@ class Config:
         import yaml
 
         # Handle basic configuration file
-        path = package_data_path("gas_security", "reporting", f"{category}.yaml")
+        path = package_data_path("weu_security", "reporting", f"{category}.yaml")
         with open(path) as f:  # Raises FileNotFoundError on missing file
             kw = yaml.safe_load(f)  # Raises on invalid YAML
 

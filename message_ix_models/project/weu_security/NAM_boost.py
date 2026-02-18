@@ -17,7 +17,7 @@ from itertools import product
 from message_ix_models.tools.bilateralize.prepare_edit import *
 from message_ix_models.tools.bilateralize.bare_to_scenario import *
 from message_ix_models.tools.bilateralize.load_and_solve import *
-from message_ix_models.project.gas_security.aggregate_tec import *
+from message_ix_models.project.weu_security.aggregate_tec import *
 
 import os
 
@@ -42,11 +42,11 @@ def run_nam_boost(base_scenario_name: str,
                   solve_scenario: bool = True):
     
     # Import scenario and models
-    config, config_path = load_config(project_name = 'gas_security', config_name = 'config.yaml')
+    config, config_path = load_config(project_name = 'weu_security', config_name = 'config.yaml')
 
     mp = ixmp.Platform()
-    base_scenario = message_ix.Scenario(mp, model = 'gas_security', scenario = base_scenario_name)
-    out_scenario = base_scenario.clone(model = 'gas_security', scenario = out_scenario_name, keep_solution = False)
+    base_scenario = message_ix.Scenario(mp, model = 'weu_security', scenario = base_scenario_name)
+    out_scenario = base_scenario.clone(model = 'weu_security', scenario = out_scenario_name, keep_solution = False)
 
     # Aggregate imports for bounds
     outputdf = base_scenario.par('output')

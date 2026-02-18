@@ -24,7 +24,7 @@ def friction_dictionary(sensitivity_scenario: str,
                         friction_endyear:int):
 
     # Import scenario and models
-    config, config_path = load_config(project_name = 'gas_security', config_name = 'config.yaml')
+    config, config_path = load_config(project_name = 'weu_security', config_name = 'config.yaml')
     data_path = package_data_path("bilateralize")
 
     sens_i = config['restriction'][sensitivity_scenario]['exporters']
@@ -65,15 +65,15 @@ def run_friction_scenario(base_scenario_name: str,
                           solve_scenario = True):
     
     # Import scenario and models
-    config, config_path = load_config(project_name = 'gas_security', config_name = 'config.yaml')
+    config, config_path = load_config(project_name = 'weu_security', config_name = 'config.yaml')
 
     # Build dictionary
     bound_out = friction_dictionary(sensitivity_scenario, friction_endyear)
 
     mp = ixmp.Platform()
 
-    base_scenario = message_ix.Scenario(mp, model = 'gas_security', scenario = base_scenario_name)
-    target_scenario = base_scenario.clone('gas_security',
+    base_scenario = message_ix.Scenario(mp, model = 'weu_security', scenario = base_scenario_name)
+    target_scenario = base_scenario.clone('weu_security',
                                           sensitivity_scenario + str(friction_endyear), 
                                           keep_solution = False)
     target_scenario.set_as_default()
